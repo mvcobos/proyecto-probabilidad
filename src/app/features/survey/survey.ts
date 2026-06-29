@@ -3,6 +3,8 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Header } from '../../components/header/header';
 import { Malla } from '../../core/services/malla';
+import { EncuestaService } from '../../core/services/encuesta.service';
+import { LocalStorageService } from '../../core/services/local-storage.service';
 
 @Component({
   selector: 'app-survey',
@@ -15,6 +17,8 @@ export class Survey {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private malla = inject(Malla);
+  private encuestaService = inject(EncuestaService);
+  private localStorage = inject(LocalStorageService);
 
   semestreNumero = 0;
   materia = '';
@@ -24,27 +28,39 @@ export class Survey {
   readonly opcionesLikert = [1, 2, 3, 4, 5];
 
   readonly preguntasLikert = [
-    { campo: 'equilibrioTeoriaPractica', texto: 'El equilibrio entre teoría y práctica fue adecuado' },
-    { campo: 'clasesPracticasUtiles',    texto: 'Las clases prácticas (laboratorios, ejercicios) me ayudaron a entender la materia' },
-    { campo: 'clasesTeoricasUtiles',     texto: 'Las clases teóricas me aportaron conocimientos útiles' },
-    { campo: 'realmenteAprendiendo',     texto: '¿Sientes que verdaderamente estás aprendiendo?' }
+    {
+      campo: 'equilibrioTeoriaPractica',
+      texto: 'El equilibrio entre teoría y práctica fue adecuado',
+    },
+    {
+      campo: 'clasesPracticasUtiles',
+      texto: 'Las clases prácticas (laboratorios, ejercicios) me ayudaron a entender la materia',
+    },
+    {
+      campo: 'clasesTeoricasUtiles',
+      texto: 'Las clases teóricas me aportaron conocimientos útiles',
+    },
+    { campo: 'realmenteAprendiendo', texto: '¿Sientes que verdaderamente estás aprendiendo?' },
   ];
 
   readonly preguntasAbiertas = [
-    { campo: 'comentarioTeorico',  texto: '¿Qué te pareció la parte teórica de la materia?' },
+    { campo: 'comentarioTeorico', texto: '¿Qué te pareció la parte teórica de la materia?' },
     { campo: 'comentarioPractico', texto: '¿Qué te pareció la parte práctica de la materia?' },
-    { campo: 'cambioMetodologia',  texto: '¿Qué cambiarías de la metodología de enseñanza en esta materia?' }
+    {
+      campo: 'cambioMetodologia',
+      texto: '¿Qué cambiarías de la metodología de enseñanza en esta materia?',
+    },
   ];
 
   encuestaForm = this.fb.group({
     tipoMateria: [null as string | null, Validators.required],
     equilibrioTeoriaPractica: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
-    clasesPracticasUtiles:    [0, [Validators.required, Validators.min(1), Validators.max(5)]],
-    clasesTeoricasUtiles:     [0, [Validators.required, Validators.min(1), Validators.max(5)]],
-    realmenteAprendiendo:     [0, [Validators.required, Validators.min(1), Validators.max(5)]],
-    comentarioTeorico:  ['', [Validators.required, Validators.minLength(5)]],
+    clasesPracticasUtiles: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
+    clasesTeoricasUtiles: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
+    realmenteAprendiendo: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
+    comentarioTeorico: ['', [Validators.required, Validators.minLength(5)]],
     comentarioPractico: ['', [Validators.required, Validators.minLength(5)]],
-    cambioMetodologia:  ['', [Validators.required, Validators.minLength(5)]]
+    cambioMetodologia: ['', [Validators.required, Validators.minLength(5)]],
   });
 
   constructor() {
@@ -52,7 +68,7 @@ export class Survey {
     this.materia = this.route.snapshot.paramMap.get('materia') ?? '';
 
     const semestre = this.malla.obtenerSemestre(this.semestreNumero);
-    const grupoEncontrado = semestre?.grupos.find(g => g.materias.includes(this.materia));
+    const grupoEncontrado = semestre?.grupos.find((g) => g.materias.includes(this.materia));
 
     if (grupoEncontrado) {
       this.grupo = grupoEncontrado.nombre;
@@ -78,17 +94,54 @@ export class Survey {
     this.encuestaForm.get('tipoMateria')?.setValue(tipo);
   }
 
-  enviar(): void {
+  async enviar(): Promise<void> {
     if (this.encuestaForm.invalid) {
       this.encuestaForm.markAllAsTouched();
       return;
     }
-    console.log('Respuesta de encuesta:', {
-      semestre: this.semestreNumero,
-      materia: this.materia,
-      grupo: this.grupo,
-      ...this.encuestaForm.value
-    });
-    alert('¡Gracias! Tu respuesta fue registrada (por ahora en consola).');
+
+    const idEncuesta = `${this.semestreNumero}_${this.materia.toLowerCase()}`;
+
+    if (this.localStorage.yaRespondio(idEncuesta)) {
+      alert('Ya respondiste esta encuesta.');
+
+      return;
+    }
+
+    try {
+      await this.encuestaService.guardarEncuesta({
+        semestre: this.semestreNumero,
+
+        materia: this.materia,
+
+        grupo: this.grupo,
+
+        tipoMateria: this.encuestaForm.value.tipoMateria! as 'Teórica' | 'Práctica' | 'Mixta',
+
+        equilibrioTeoriaPractica: this.encuestaForm.value.equilibrioTeoriaPractica!,
+
+        clasesPracticasUtiles: this.encuestaForm.value.clasesPracticasUtiles!,
+
+        clasesTeoricasUtiles: this.encuestaForm.value.clasesTeoricasUtiles!,
+
+        realmenteAprendiendo: this.encuestaForm.value.realmenteAprendiendo!,
+
+        comentarioTeorico: this.encuestaForm.value.comentarioTeorico!,
+
+        comentarioPractico: this.encuestaForm.value.comentarioPractico!,
+
+        cambioMetodologia: this.encuestaForm.value.cambioMetodologia!,
+      });
+
+      this.localStorage.registrar(idEncuesta);
+
+      alert('¡Muchas gracias! Tu encuesta fue registrada correctamente.');
+
+      this.encuestaForm.reset();
+    } catch (error) {
+      console.error(error);
+
+      alert('Ocurrió un error al guardar la encuesta.');
+    }
   }
 }
