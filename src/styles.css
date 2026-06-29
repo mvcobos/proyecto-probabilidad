@@ -1,3 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@plugin "tailwindcss-primeui";
+@import "primeicons/primeicons.css";
 
-@import 'tailwindcss';
+/* Forzar la generación de los gradientes de COLORES_GRUPO,
+   porque se aplican dinámicamente desde malla.ts y Tailwind
+   no los detecta al escanear el código. */
+@source inline("from-[#121358] from-[#d6336c] from-[#5e1a1a] from-[#e8590c] from-[#4e7096] from-[#0b3d2e] from-[#482ba2] from-[#3a0a4a]");
+@source inline("to-[#4ad6ca] to-[#f8cdda] to-[#f0a868] to-[#ffd07a] to-[#b2e4ed] to-[#7be0a0] to-[#81d8e5] to-[#8e6bd6]");

@@ -1,0 +1,113 @@
+<!--
+  comparison.html
+  Vista "Comparación de algoritmos".
+  Estética: fondo degradado negro->antracita, paneles glassmorphism
+  oscuros (bg-white/5 + border-white/10 + backdrop-blur), datos en blanco.
+-->
+<app-header />
+<div class="bg-gradient-to-br from-black to-[#494949]">
+  <div class="mx-auto max-w-7xl px-4 py-8">
+
+    @if (datos(); as d) {
+
+      <!-- Header -->
+      <header class="mb-8 flex flex-wrap items-start justify-between gap-3 ">
+        <div>
+          <h1 class="text-4xl font-extrabold tracking-tight text-white">
+            Comparación de algoritmos
+          </h1>
+          <p class="mt-1 text-gray-400">
+            Materia: {{ d.materia }} · {{ d.totalComentarios }} comentarios clasificados
+          </p>
+        </div>
+        <span class="inline-flex items-center gap-2 rounded-lg bg-amber-400/15 px-3 py-1.5
+                     text-sm font-medium text-amber-300">
+          Datos de ejemplo
+        </span>
+      </header>
+
+      <!-- Tarjetas resumen -->
+      <div class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <p class="text-sm text-gray-400">Mejor algoritmo</p>
+          <p class="mt-1 text-xl font-bold text-white">{{ mejorAlgoritmo() }}</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <p class="text-sm text-gray-400">Mejor F1-Score</p>
+          <p class="mt-1 text-xl font-bold text-white">{{ mejorF1() }}</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <p class="text-sm text-gray-400">Más rápido</p>
+          <p class="mt-1 text-xl font-bold text-white">{{ masRapido() }}</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+          <p class="text-sm text-gray-400">Algoritmos</p>
+          <p class="mt-1 text-xl font-bold text-white">{{ d.algoritmos.length }}</p>
+        </div>
+      </div>
+
+      <!-- Gráfica 1: métricas -->
+      <section class="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+        <h2 class="text-lg font-bold text-white">Métricas por algoritmo</h2>
+        <p class="mb-4 text-sm text-gray-400">Escala de 0 a 1 · más alto es mejor</p>
+        <div class="h-80">
+          <p-chart type="bar" [data]="metricasData()" [options]="metricasOptions()" />
+        </div>
+      </section>
+
+      <!-- Gráfica 2: tiempo -->
+      <section class="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+        <h2 class="text-lg font-bold text-white">Tiempo de clasificación</h2>
+        <p class="mb-4 text-sm text-gray-400">Segundos sobre el conjunto de prueba · más bajo es mejor</p>
+        <div class="h-72">
+          <p-chart type="bar" [data]="tiempoData()" [options]="tiempoOptions()" />
+        </div>
+      </section>
+
+      <!-- Matriz de confusión -->
+      <section class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+        <h2 class="text-lg font-bold text-white">
+          Matriz de confusión — {{ d.matrizMejor.algoritmo }}
+        </h2>
+        <p class="mb-4 text-sm text-gray-400">
+          Filas = real · columnas = predicho · la diagonal son los aciertos
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-[420px] border-collapse text-sm">
+            <thead>
+              <tr>
+                <th class="p-2 text-left font-medium text-gray-400"></th>
+                @for (clase of d.matrizMejor.clases; track clase) {
+                  <th class="p-2 font-medium text-gray-300">{{ clase }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of d.matrizMejor.valores; track $index; let filaIndex = $index) {
+                <tr>
+                  <td class="p-2 font-medium text-gray-300">
+                    {{ d.matrizMejor.clases[filaIndex] }}
+                  </td>
+                  @for (valor of fila; track $index; let colIndex = $index) {
+                    <td class="p-3 text-center font-semibold rounded-lg"
+                        [class]="filaIndex === colIndex
+                          ? 'bg-emerald-500/80 text-emerald-950'
+                          : 'bg-white/5 text-gray-200'">
+                      {{ valor }}
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    } @else {
+      <!-- Estado de carga -->
+      <p class="py-20 text-center text-gray-400">Cargando comparación…</p>
+    }
+
+  </div>
+</div>

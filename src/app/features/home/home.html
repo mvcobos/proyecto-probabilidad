@@ -1,0 +1,61 @@
+<app-header />
+
+<main class="min-h-screen bg-linear-to-tr from-[#000000] to-[#494949] px-8 py-12">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Título -->
+    <div class="text-center mb-14">
+      <h1 class="text-white text-5xl font-extrabold tracking-tight mb-3">
+        Malla Curricular
+      </h1>
+      <p class="text-gray-400 text-lg">
+        Selecciona un semestre para explorar sus áreas y materias
+      </p>
+    </div>
+
+    <!-- Grid de semestres -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (sem of semestres; track sem.numero) {
+        <a
+          [routerLink]="['/semestre', sem.numero]"
+          [class]="sem.color"
+          [attr.aria-label]="'Ver detalle de ' + sem.nombre"
+          class="group relative bg-linear-to-br rounded-2xl p-6 h-64 flex flex-col
+                 justify-between cursor-pointer overflow-hidden no-underline
+                 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-black/60
+                 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent">
+
+          <!-- Número decorativo de fondo -->
+          <span class="absolute -top-2 -right-2 text-white/10 font-black select-none leading-none"
+                style="font-size: 7rem;" aria-hidden="true">
+            {{ sem.numero }}
+          </span>
+
+          <!-- Nombre del semestre -->
+          <h2 class="relative text-white text-xl font-bold">
+            {{ sem.nombre }}
+          </h2>
+
+          <!-- Grupos como badges -->
+          <div class="relative flex flex-col gap-2">
+            <div class="flex flex-wrap gap-1.5 mb-1">
+              @for (g of sem.grupos; track g.nombre) {
+                <span class="bg-white/25 rounded-full px-2.5 py-0.5 text-white text-xs font-semibold">
+                  {{ g.nombre }}
+                </span>
+              }
+            </div>
+            <!-- Flecha de acción -->
+            <div class="flex items-center gap-1.5 text-white/70 group-hover:text-white
+                        transition-colors duration-200 text-sm font-medium">
+              <span>Ver materias</span>
+              <span class="translate-x-0 group-hover:translate-x-1 transition-transform duration-200"
+                    aria-hidden="true">→</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+  </div>
+</main>

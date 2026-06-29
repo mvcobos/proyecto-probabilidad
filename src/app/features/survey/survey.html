@@ -1,0 +1,153 @@
+<app-header />
+
+<!-- ===== HERO con gradiente del grupo ===== -->
+<div class="relative bg-linear-to-br overflow-hidden px-8 pt-1 pb-12" [class]="gradiente">
+
+  <!-- Número decorativo de fondo -->
+  <span class="absolute -right-4 -top-4 font-black text-white/10 leading-none select-none pointer-events-none"
+        style="font-size: 11rem;" aria-hidden="true">{{ semestreNumero }}</span>
+
+  <!-- Botón de regreso -->
+  <a [routerLink]="['/semestre', semestreNumero]"
+     class="inline-flex items-center gap-2 text-white/70 hover:text-white
+            text-sm font-medium transition-colors duration-200 no-underline
+            focus:outline-none focus:ring-2 focus:ring-white/30 rounded-md mb-6">
+    <span aria-hidden="true">←</span> Volver al semestre
+  </a>
+
+  <!-- Badge del grupo -->
+  <div class="mb-3">
+    <span class="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+      {{ grupo }}
+    </span>
+  </div>
+
+  <!-- Nombre de la materia -->
+  <h1 class="text-white text-3xl sm:text-4xl font-extrabold leading-tight mb-3 max-w-2xl">
+    {{ materia }}
+  </h1>
+
+  <!-- Badge semestre -->
+  <span class="text-white/70 text-sm font-medium">{{ semestreNumero }}° Semestre</span>
+</div>
+
+<!-- ===== FORMULARIO ===== -->
+<main class="min-h-screen bg-[#0d0d0d] px-4 py-10 flex justify-center">
+  <form
+    [formGroup]="encuestaForm"
+    (ngSubmit)="enviar()"
+    class="w-full max-w-5xl flex flex-col gap-6">
+
+    <!-- ── Sección 1: Tipo de materia ── -->
+    <section class="bg-[#1a1a1a] rounded-2xl p-6 border border-white/5">
+      <h2 class="text-white text-base font-bold mb-1">Tipo de materia</h2>
+      <p class="text-gray-400 text-sm mb-5">
+        ¿La materia es predominantemente teórica, práctica o mixta según tu experiencia?
+      </p>
+
+      <div class="grid grid-cols-3 gap-3">
+        @for (tipo of ['Teórica', 'Práctica', 'Mixta']; track tipo) {
+          <button
+            type="button"
+            (click)="seleccionarTipo(tipo)"
+            class="py-3 rounded-xl font-semibold text-sm transition-all duration-200
+                   focus:outline-none focus:ring-2 focus:ring-white/30"
+            [class]="encuestaForm.value.tipoMateria === tipo
+              ? 'bg-white text-gray-900 shadow-lg scale-[1.03]'
+              : 'bg-white/8 text-white/70 hover:bg-white/15 hover:text-white'">
+            {{ tipo }}
+          </button>
+        }
+      </div>
+
+      @if (campoInvalido('tipoMateria')) {
+        <p class="text-red-400 text-xs mt-3">Selecciona una opción.</p>
+      }
+    </section>
+
+    <!-- ── Sección 2: Escala Likert ── -->
+    <section class="bg-[#1a1a1a] rounded-2xl p-6 border border-white/5">
+      <h2 class="text-white text-base font-bold mb-1">Experiencia de aprendizaje</h2>
+      <p class="text-gray-400 text-sm mb-6">Valora del 1 (en desacuerdo) al 5 (de acuerdo).</p>
+
+      <div class="flex flex-col gap-7">
+        @for (pregunta of preguntasLikert; track pregunta.campo) {
+          <div>
+            <p class="text-white/90 text-sm font-medium mb-4">{{ pregunta.texto }}</p>
+
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-gray-500 text-xs shrink-0">En desacuerdo</span>
+
+              <div class="flex items-center gap-2 flex-1 justify-center">
+                @for (valor of opcionesLikert; track valor) {
+                  <button
+                    type="button"
+                    (click)="seleccionarLikert(pregunta.campo, valor)"
+                    [attr.aria-label]="pregunta.texto + ' — valor ' + valor"
+                    class="w-10 h-10 rounded-full font-bold text-sm
+                           transition-all duration-200 hover:scale-110
+                           focus:outline-none focus:ring-2 focus:ring-white/40"
+                    [class]="getValor(pregunta.campo) === valor
+                      ? 'bg-white text-gray-900 shadow-md scale-110'
+                      : 'bg-white/10 text-white/50 hover:bg-white/20 hover:text-white'">
+                    {{ valor }}
+                  </button>
+                }
+              </div>
+
+              <span class="text-gray-500 text-xs shrink-0">De acuerdo</span>
+            </div>
+
+            @if (campoInvalido(pregunta.campo)) {
+              <p class="text-red-400 text-xs mt-2">Selecciona un valor del 1 al 5.</p>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ── Sección 3: Preguntas abiertas ── -->
+    <section class="bg-[#1a1a1a] rounded-2xl p-6 border border-white/5">
+      <h2 class="text-white text-base font-bold mb-1">Tus comentarios</h2>
+      <p class="text-gray-400 text-sm mb-6">Mínimo 5 caracteres por respuesta.</p>
+
+      <div class="flex flex-col gap-5">
+        @for (abierta of preguntasAbiertas; track abierta.campo) {
+          <div>
+            <label class="block text-white/80 text-sm font-medium mb-2">
+              {{ abierta.texto }}
+            </label>
+            <textarea
+              [formControlName]="abierta.campo"
+              rows="3"
+              placeholder="Escribe tu respuesta..."
+              class="w-full bg-white/5 text-white text-sm rounded-xl px-4 py-3
+                     placeholder-gray-600 border border-white/10
+                     focus:border-white/30 focus:bg-white/8 focus:outline-none
+                     transition-colors duration-200 resize-none">
+            </textarea>
+            @if (campoInvalido(abierta.campo)) {
+              <p class="text-red-400 text-xs mt-1">Escribe al menos 5 caracteres.</p>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ── Botón enviar ── -->
+    <button
+      type="submit"
+      class="w-full bg-linear-to-r py-4 rounded-2xl font-bold text-base
+             transition-all duration-200 hover:opacity-90 hover:scale-[1.01]
+             disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100
+             focus:outline-none focus:ring-2 focus:ring-white/30
+             text-white shadow-lg"
+      [class]="gradiente"
+      [disabled]="encuestaForm.invalid">
+      Enviar encuesta
+    </button>
+
+    <div class="pb-6"></div>
+
+  </form>
+</main>

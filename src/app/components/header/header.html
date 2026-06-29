@@ -1,0 +1,49 @@
+<header class="sticky top-0 z-50 backdrop-blur-md bg-black/50 border-b border-white/10 px-8 py-3 flex items-center justify-between">
+
+  <!-- Brand -->
+  <a href="/"
+     class="flex items-center gap-3 no-underline group"
+     aria-label="Inicio — Proyecto Estadística">
+    <div class="w-9 h-9 rounded-xl bg-linear-to-br from-blue-400 to-purple-600
+                flex items-center justify-center
+                group-hover:scale-110 transition-transform duration-200 shrink-0" aria-hidden="true">
+      <span class="text-white font-black text-sm leading-none">PE</span>
+    </div>
+    <span class="text-white text-lg font-semibold tracking-wide">
+      Proyecto Estadística
+    </span>
+  </a>
+
+  <!-- Navigation -->
+  <nav aria-label="Menú principal">
+    <ul class="flex items-center gap-1 list-none m-0 p-0">
+      <li>
+        <a href="/"
+           class="text-white/70 hover:text-white font-medium px-4 py-2 rounded-lg
+                  hover:bg-white/10 transition-all duration-200 no-underline
+                  focus:outline-none focus:ring-2 focus:ring-white/30">
+          Home
+        </a>
+      </li>
+      <li>
+        <a routerLink="/results"
+           routerLinkActive="text-white bg-white/10"
+           class="text-white/70 hover:text-white font-medium px-4 py-2 rounded-lg
+                  hover:bg-white/10 transition-all duration-200 no-underline
+                  focus:outline-none focus:ring-2 focus:ring-white/30">
+          Resultados
+        </a>
+      </li>
+      <li>
+        <a routerLink="/comparison"
+           routerLinkActive="text-white bg-white/10"
+           class="text-white/70 hover:text-white font-medium px-4 py-2 rounded-lg
+                  hover:bg-white/10 transition-all duration-200 no-underline
+                  focus:outline-none focus:ring-2 focus:ring-white/30">
+          Comparación
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+</header>

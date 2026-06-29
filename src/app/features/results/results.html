@@ -1,0 +1,44 @@
+<!--
+  results.html
+  Pantalla de Resultados de Percepción Estudiantil.
+  Estructura: header -> grid de cards -> panel de detalle (desplegable).
+-->
+<app-header />
+
+<main class="min-h-screen bg-linear-to-tr from-[#000000] to-[#494949] px-8 py-12">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- 1. Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-white text-5xl font-extrabold tracking-tight mb-3">
+        Resultados de percepción estudiantil
+      </h1>
+      <p class="text-gray-400 text-lg">
+        Opinión sobre las metodologías de enseñanza, agrupada por bloque académico.
+      </p>
+    </div>
+
+    <!-- 2. Cards globales por grupo académico -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      @for (grupo of grupos(); track grupo.nombre) {
+        <app-grupo-card
+          [grupo]="grupo"
+          [seleccionada]="grupo.nombre === grupoSeleccionado()?.nombre"
+          (seleccionar)="onSeleccionarGrupo($event)" />
+      }
+    </div>
+
+    <!-- Estado de carga: si aún no hay grupos, mostramos un aviso simple -->
+    @if (grupos().length === 0) {
+      <p class="mt-6 text-center text-gray-400">Cargando resultados…</p>
+    }
+
+    <!-- 3. Panel de detalle (solo si hay un grupo seleccionado) -->
+    @if (grupoSeleccionado(); as grupo) {
+      <div class="mt-8">
+        <app-grupo-detalle [grupo]="grupo" />
+      </div>
+    }
+
+  </div>
+</main>

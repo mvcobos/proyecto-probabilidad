@@ -1,0 +1,7 @@
+/* comparison.css
+   Animación de aparición vertical (8px + opacidad), igual que en results,
+   para mantener coherencia de movimiento en todo el proyecto. */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

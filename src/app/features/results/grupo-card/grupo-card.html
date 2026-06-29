@@ -1,0 +1,42 @@
+<!--
+  grupo-card.html
+  Card de un grupo académico con gradiente de COLORES_GRUPO.
+  - El gradiente se aplica con clases Tailwind dinámicas (bg-linear-to-br + gradiente).
+  - hover:scale + transition dan la animación suave.
+  - El borde resalta cuando la card está seleccionada.
+-->
+<button
+  type="button"
+  (click)="alHacerClic()"
+  [class.ring-4]="seleccionada()"
+  class="group relative w-full h-44 overflow-hidden rounded-2xl bg-linear-to-br p-5 text-left
+         shadow-lg ring-white/70 transition-all duration-300 ease-out
+         hover:-translate-y-1 hover:shadow-2xl focus:outline-none
+         focus-visible:ring-4 focus-visible:ring-white/80"
+  [ngClass]="clasesGradiente()">
+
+  <!-- Capa oscura sutil para que el texto blanco siempre se lea -->
+  <span class="pointer-events-none absolute inset-0 bg-black/10
+               transition-opacity duration-300 group-hover:bg-black/0"></span>
+
+  <div class="relative z-10 flex flex-col gap-3 text-white">
+    <!-- Nombre del grupo -->
+    <h3 class="text-lg font-bold leading-tight drop-shadow">
+      {{ grupo().nombre }}
+    </h3>
+
+    <!-- Porcentaje positivo destacado -->
+    <div class="flex items-end gap-1">
+      <span class="text-4xl font-extrabold drop-shadow">{{ grupo().positivo }}%</span>
+      <span class="mb-1 text-sm font-medium opacity-90">positivo</span>
+    </div>
+
+    <!-- Metadatos: respuestas y materias -->
+    <div class="flex items-center justify-between text-sm font-medium opacity-90">
+      <span>{{ grupo().totalRespuestas }} respuestas</span>
+      <span>{{ grupo().cantidadMaterias }}
+        {{ grupo().cantidadMaterias === 1 ? 'materia' : 'materias' }}
+      </span>
+    </div>
+  </div>
+</button>

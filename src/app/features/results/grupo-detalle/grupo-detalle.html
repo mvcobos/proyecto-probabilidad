@@ -1,0 +1,63 @@
+<!--
+  grupo-detalle.html
+  Panel de detalle de un grupo: resumen + lista de materias.
+  Las barras de percepción se construyen con flex + anchos en %
+  (cada segmento = su porcentaje), de modo que la barra suma 100%.
+-->
+<section class="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 shadow-xl">
+
+  <!-- Título del grupo seleccionado -->
+  <header class="mb-5">
+    <h2 class="text-xl font-bold text-white">
+      {{ grupo().nombre }}
+    </h2>
+    <p class="text-sm text-gray-400">
+      {{ grupo().totalRespuestas }} respuestas · {{ grupo().cantidadMaterias }} materias
+    </p>
+  </header>
+
+  <!-- 1. Resumen estadístico: 4 tarjetas -->
+  <div class="mb-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/15 p-4">
+      <p class="text-sm text-gray-400">Positivo</p>
+      <p class="text-2xl font-bold text-emerald-400">{{ grupo().positivo }}%</p>
+    </div>
+    <div class="rounded-xl border border-amber-500/20 bg-amber-500/15 p-4">
+      <p class="text-sm text-gray-400">Neutro</p>
+      <p class="text-2xl font-bold text-amber-400">{{ grupo().neutro }}%</p>
+    </div>
+    <div class="rounded-xl border border-red-500/20 bg-red-500/15 p-4">
+      <p class="text-sm text-gray-400">Negativo</p>
+      <p class="text-2xl font-bold text-red-400">{{ grupo().negativo }}%</p>
+    </div>
+    <div class="rounded-xl border border-white/10 bg-white/10 p-4">
+      <p class="text-sm text-gray-400">Comentarios</p>
+      <p class="text-2xl font-bold text-white">{{ grupo().totalRespuestas }}</p>
+    </div>
+  </div>
+
+  <!-- 2. Detalle por materia -->
+  <h3 class="mb-3 text-base font-semibold text-white/80">
+    Detalle por materia
+  </h3>
+
+  <div class="flex flex-col gap-4">
+    @for (materia of grupo().materias; track materia.nombre) {
+      <div class="flex flex-col gap-1.5">
+        <!-- Nombre + total de respuestas -->
+        <div class="flex items-center justify-between text-sm">
+          <span class="font-medium text-gray-200">{{ materia.nombre }}</span>
+          <span class="text-gray-500">{{ materia.totalRespuestas }} resp.</span>
+        </div>
+
+        <!-- Barra apilada (positivo/neutro/negativo) -->
+        <div class="flex h-5 w-full overflow-hidden rounded-full"
+             [title]="materia.positivo + '% positivo · ' + materia.neutro + '% neutro · ' + materia.negativo + '% negativo'">
+          <div class="bg-emerald-500" [style.width.%]="materia.positivo"></div>
+          <div class="bg-amber-400"   [style.width.%]="materia.neutro"></div>
+          <div class="bg-red-500"     [style.width.%]="materia.negativo"></div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

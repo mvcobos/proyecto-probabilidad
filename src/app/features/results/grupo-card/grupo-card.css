@@ -1,0 +1,5 @@
+/* grupo-card.css
+   Intencionalmente vacío: todo el estilo se resuelve con utilidades
+   Tailwind en el template. Se deja el archivo para mantener la
+   convención (ts + html + css por componente) y por si más adelante
+   se necesitan estilos específicos que Tailwind no cubra. */
