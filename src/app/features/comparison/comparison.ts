@@ -1,9 +1,13 @@
-import { Component, inject, computed } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, computed, effect } from '@angular/core';
+import { toSignal, toObservable } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { ChartModule } from 'primeng/chart';
+import { Select } from 'primeng/select';
 
 import { ComparacionService } from '../../core/services/comparacion.service';
-import { ComparacionAlgoritmos } from '../../core/models/algoritmo-estadistica.model';
+import { ResultadoComparacion } from '../../core/models/algoritmo-estadistica.model';
 import { Header } from '../../components/header/header';
 
 /**
@@ -12,7 +16,8 @@ import { Header } from '../../components/header/header';
  * Componente CONTENEDOR de la vista "Comparación de algoritmos".
  *
  * Responsabilidades:
- *  - Pedir los datos al ComparacionService.
+ *  - Ofrecer un selector de materia (a partir de las que tienen encuestas).
+ *  - Pedir la comparación de esa materia al ComparacionService.
  *  - Transformar esos datos al formato que entiende Chart.js
  *    (objetos 'data' y 'options'), expuesto como señales computadas.
  *
@@ -22,7 +27,7 @@ import { Header } from '../../components/header/header';
 @Component({
   selector: 'app-comparison',
   standalone: true,
-  imports: [ChartModule, Header],
+  imports: [ChartModule, Header, Select, ReactiveFormsModule],
   templateUrl: './comparison.html',
   styleUrl: './comparison.css'
 })
@@ -30,11 +35,49 @@ export class Comparison {
 
   private readonly comparacionService = inject(ComparacionService);
 
-  /** Datos crudos del servicio convertidos en señal. */
-  readonly datos = toSignal<ComparacionAlgoritmos | null>(
-    this.comparacionService.obtenerComparacion(),
+  /** Materias con encuestas registradas, para poblar el selector. */
+  readonly materias = toSignal(this.comparacionService.obtenerMateriasDisponibles(), {
+    initialValue: [] as string[]
+  });
+
+  /** Materia elegida por el usuario en el p-select. */
+  readonly materiaControl = new FormControl<string>('', { nonNullable: true });
+  private readonly materiaSeleccionada = toSignal(this.materiaControl.valueChanges, {
+    initialValue: ''
+  });
+
+  /** La seleccionada, o la primera disponible mientras no se elija ninguna. */
+  readonly materiaActiva = computed(() => this.materiaSeleccionada() || this.materias()[0] || '');
+
+  constructor() {
+    // Preselecciona la primera materia con encuestas en cuanto se conocen.
+    effect(() => {
+      const primera = this.materias()[0];
+      if (primera && !this.materiaControl.value) {
+        this.materiaControl.setValue(primera);
+      }
+    });
+  }
+
+  /** Resultado de comparar los 4 algoritmos para la materia activa. */
+  readonly resultado = toSignal<ResultadoComparacion | null>(
+    toObservable(this.materiaActiva).pipe(
+      switchMap(materia => materia ? this.comparacionService.obtenerComparacion(materia) : of(null))
+    ),
     { initialValue: null }
   );
+
+  /** Datos completos solo cuando hay comentarios suficientes. */
+  readonly datos = computed(() => {
+    const r = this.resultado();
+    return r?.suficiente ? r.datos : null;
+  });
+
+  /** Aviso de datos insuficientes (null si no aplica). */
+  readonly datosInsuficientes = computed(() => {
+    const r = this.resultado();
+    return r && !r.suficiente ? r : null;
+  });
 
   // --- Colores reutilizables (coinciden con el mockup validado) ---
   private readonly C = {

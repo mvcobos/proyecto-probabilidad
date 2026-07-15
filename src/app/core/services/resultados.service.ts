@@ -15,13 +15,14 @@
  * - Cuando migres a HttpClient, la firma del método no cambia.
  */
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Malla } from './malla'; // tu servicio existente (clase Malla)
 import { GrupoEstadistica } from '../models/grupo-estadistica.model';
 import { MateriaEstadistica } from '../models/materia-estadistica.model';
 import { SentimientoStats } from '../models/resultado.model';
+import { EncuestasLecturaService, EncuestaDoc } from './encuestas-lectura.service';
 
 // Gradientes oficiales por grupo (mismos que en malla.ts) para no
 // depender de un símbolo privado. Se mantienen sincronizados a mano.
@@ -45,9 +46,15 @@ export class ResultadosService {
   /** Caché interna para no recalcular en cada suscripción. */
   private cache: GrupoEstadistica[] | null = null;
 
-  /** Todos los grupos con stats agregadas. delay simula latencia de red. */
+  private readonly encuestasLectura = inject(EncuestasLecturaService);
+
+  /** Todos los grupos con stats agregadas, leyendo encuestas desde Firestore. */
   obtenerGrupos(): Observable<GrupoEstadistica[]> {
-    return of(this.construirGrupos()).pipe(delay(400));
+    return this.encuestasLectura.obtenerEncuestas().pipe(
+      map(encuestas => encuestas && encuestas.length > 0
+        ? this.construirGruposDesdeEncuestas(encuestas)
+        : this.construirGrupos())
+    );
   }
 
   /** Un solo grupo por nombre (para el panel de detalle). */
@@ -66,10 +73,49 @@ export class ResultadosService {
   //  Construcción de datos simulados (privado)
   // ----------------------------------------------------------------
 
+  /** Construye los grupos a partir de las encuestas reales leídas desde Firestore. */
+  private construirGruposDesdeEncuestas(encuestas: EncuestaDoc[]): GrupoEstadistica[] {
+    // Map: grupo -> (materia -> encuestas[])
+    const agrupado = new Map<string, Map<string, EncuestaDoc[]>>();
+
+    for (const e of encuestas) {
+      const nombreGrupo = e.grupo || 'Sin Grupo';
+      const nombreMateria = e.materia || 'Sin Materia';
+
+      if (!agrupado.has(nombreGrupo)) agrupado.set(nombreGrupo, new Map());
+      const materias = agrupado.get(nombreGrupo)!;
+      if (!materias.has(nombreMateria)) materias.set(nombreMateria, []);
+      materias.get(nombreMateria)!.push(e);
+    }
+
+    const grupos: GrupoEstadistica[] = [];
+
+    agrupado.forEach((materiasMap, nombreGrupo) => {
+      const materias: MateriaEstadistica[] = [];
+
+      materiasMap.forEach((encs, nombreMateria) => {
+        const stats = this.statsDesdeEncuestas(encs);
+        materias.push({ nombre: nombreMateria, grupo: nombreGrupo, ...stats });
+      });
+
+      const agregado = this.agregar(materias);
+
+      grupos.push({
+        nombre: nombreGrupo,
+        gradiente: COLORES_GRUPO[nombreGrupo] ?? 'from-slate-700 to-slate-400',
+        cantidadMaterias: materias.length,
+        materias,
+        ...agregado
+      });
+    });
+
+    return grupos;
+  }
+
+  /** Fallback: construye grupos simulados a partir de la malla (como antes). */
   private construirGrupos(): GrupoEstadistica[] {
     if (this.cache) return this.cache;
 
-    // 1) Recolectar materias únicas por grupo recorriendo TODA la malla.
     const materiasPorGrupo = new Map<string, Set<string>>();
 
     for (const semestre of this.malla.obtenerSemestres()) {
@@ -77,12 +123,10 @@ export class ResultadosService {
         if (!materiasPorGrupo.has(grupo.nombre)) {
           materiasPorGrupo.set(grupo.nombre, new Set<string>());
         }
-        // Set deduplica materias repetidas (ej. Electrotecnia en 2do y 3ro).
         grupo.materias.forEach(m => materiasPorGrupo.get(grupo.nombre)!.add(m));
       }
     }
 
-    // 2) Por cada grupo, generar stats por materia y agregar el grupo.
     const grupos: GrupoEstadistica[] = [];
 
     materiasPorGrupo.forEach((setMaterias, nombreGrupo) => {
@@ -105,6 +149,35 @@ export class ResultadosService {
 
     this.cache = grupos;
     return grupos;
+  }
+
+  private statsSimuladas(semilla: string): SentimientoStats {
+    const rng = this.generadorPseudoaleatorio(this.hash(semilla));
+
+    const positivo = 38 + Math.floor(rng() * 41);      // 38–78
+    const restante = 100 - positivo;
+    const neutro = Math.floor(rng() * (restante + 1));  // 0–restante
+    const negativo = restante - neutro;
+    const totalRespuestas = 150 + Math.floor(rng() * 120); // 150–269
+
+    return { positivo, neutro, negativo, totalRespuestas };
+  }
+
+  private hash(texto: string): number {
+    let h = 5381;
+    for (let i = 0; i < texto.length; i++) {
+      h = (h * 33) ^ texto.charCodeAt(i);
+    }
+    return h >>> 0;
+  }
+
+  private generadorPseudoaleatorio(seed: number) {
+    let value = seed >>> 0;
+    return function() {
+      // LCG constants
+      value = (1664525 * value + 1013904223) % 0x100000000;
+      return value / 0x100000000;
+    };
   }
 
   /** Agrega (suma ponderada) una lista de stats en una sola. */
@@ -131,34 +204,41 @@ export class ResultadosService {
   }
 
   /** Sentimientos pseudoaleatorios pero DETERMINISTAS (datos inventados). */
-  private statsSimuladas(semilla: string): SentimientoStats {
-    const rng = this.generadorPseudoaleatorio(this.hash(semilla));
+  /** Calcula stats (porcentajes) a partir de un arreglo de encuestas. */
+  private statsDesdeEncuestas(encs: EncuestaDoc[]): SentimientoStats {
+    const total = encs.length;
+    if (total === 0) return { positivo: 0, neutro: 0, negativo: 0, totalRespuestas: 0 };
 
-    const positivo = 38 + Math.floor(rng() * 41);      // 38–78
-    const restante = 100 - positivo;
-    const neutro = Math.floor(rng() * (restante + 1));  // 0–restante
-    const negativo = restante - neutro;
-    const totalRespuestas = 150 + Math.floor(rng() * 120); // 150–269
+    let pos = 0, neu = 0, neg = 0;
 
-    return { positivo, neutro, negativo, totalRespuestas };
-  }
-
-  /** Hash simple (djb2) de un string -> entero, para sembrar el RNG. */
-  private hash(texto: string): number {
-    let h = 5381;
-    for (let i = 0; i < texto.length; i++) {
-      h = (h * 33) ^ texto.charCodeAt(i);
+    for (const e of encs) {
+      const etiqueta = this.etiquetaGlobalDesdeEncuesta(e);
+      if (etiqueta === 'Positivo') pos++;
+      else if (etiqueta === 'Neutro') neu++;
+      else neg++;
     }
-    return h >>> 0;
+
+    let positivo = Math.round((pos / total) * 100);
+    let neutro = Math.round((neu / total) * 100);
+    let negativo = Math.round((neg / total) * 100);
+
+    // Ajuste para que sumen exactamente 100
+    const diff = 100 - (positivo + neutro + negativo);
+    positivo += diff;
+
+    return { positivo, neutro, negativo, totalRespuestas: total };
   }
 
-  /** Generador congruencial lineal: función pura sembrada por 'seed'. */
-  private generadorPseudoaleatorio(seed: number): () => number {
-    let estado = seed % 2147483647;
-    if (estado <= 0) estado += 2147483646;
-    return () => {
-      estado = (estado * 16807) % 2147483647;
-      return (estado - 1) / 2147483646;
-    };
+  /** Deriva una etiqueta global sencilla desde una encuesta.
+   * Usamos el promedio entre la utilidad de teoría y práctica para
+   * decidir Positivo/Neutro/Negativo. */
+  private etiquetaGlobalDesdeEncuesta(e: EncuestaDoc): 'Positivo' | 'Neutro' | 'Negativo' {
+    const a = Number(e.clasesTeoricasUtiles ?? 3);
+    const b = Number(e.clasesPracticasUtiles ?? 3);
+    const promedio = Math.round((a + b) / 2);
+    if (promedio >= 4) return 'Positivo';
+    if (promedio === 3) return 'Neutro';
+    return 'Negativo';
   }
+ 
 }

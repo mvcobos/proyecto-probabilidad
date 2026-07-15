@@ -57,3 +57,12 @@ export interface ComparacionAlgoritmos {
   /** Matriz de confusión del algoritmo con mejor F1. */
   matrizMejor: MatrizConfusion;
 }
+
+/**
+ * Resultado de intentar comparar los algoritmos para una materia: o hay
+ * comentarios suficientes (comparación completa) o no los hay, y la vista
+ * debe mostrar un aviso de "datos insuficientes" en vez de cifras.
+ */
+export type ResultadoComparacion =
+  | { suficiente: true; datos: ComparacionAlgoritmos }
+  | { suficiente: false; totalComentarios: number; minimo: number };

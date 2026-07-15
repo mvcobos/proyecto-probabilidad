@@ -1,0 +1,97 @@
+/**
+ * datos-prueba.ts
+ * -------------------------------------------------------------
+ * ⚠️  DATOS FICTICIOS DE DESARROLLO. NO son respuestas reales de
+ *     estudiantes. Sirven ÚNICAMENTE para probar que el motor de
+ *     clasificación funciona. NO deben usarse como resultados del
+ *     estudio ni mostrarse como percepción real.
+ */
+import { Ejemplo } from './tipos';
+
+export const COMENTARIOS_PRUEBA: Ejemplo[] = [
+  // ---------------- POSITIVOS ----------------
+  { texto: 'Las clases prácticas me ayudaron muchísimo a entender la materia', etiqueta: 'Positivo' },
+  { texto: 'Excelente metodología, los laboratorios fueron muy claros y útiles', etiqueta: 'Positivo' },
+  { texto: 'El profesor explica muy bien y los ejercicios prácticos son geniales', etiqueta: 'Positivo' },
+  { texto: 'Aprendí bastante con los proyectos aplicados, todo muy bien estructurado', etiqueta: 'Positivo' },
+  { texto: 'La teoría estuvo bien fundamentada y fácil de seguir, me encantó', etiqueta: 'Positivo' },
+  { texto: 'Muy buena materia, las prácticas reforzaron todo lo visto en teoría', etiqueta: 'Positivo' },
+  { texto: 'Los ejemplos en clase fueron claros y aplicables, gran aprendizaje', etiqueta: 'Positivo' },
+  { texto: 'Me gustó mucho el equilibrio entre teoría y práctica del curso', etiqueta: 'Positivo' },
+  { texto: 'Las explicaciones fueron excelentes y siempre resolvieron mis dudas', etiqueta: 'Positivo' },
+  { texto: 'Contenido muy útil, los talleres prácticos fueron lo mejor del semestre', etiqueta: 'Positivo' },
+  { texto: 'Aprendí a programar de verdad gracias a los laboratorios bien guiados', etiqueta: 'Positivo' },
+  { texto: 'La dinámica de clase fue estupenda, motivadora y muy práctica', etiqueta: 'Positivo' },
+  { texto: 'Recomiendo esta materia, la parte práctica es excelente y clara', etiqueta: 'Positivo' },
+  { texto: 'Todo perfecto, buen material y ejercicios que ayudan a comprender', etiqueta: 'Positivo' },
+  { texto: 'El curso superó mis expectativas, aprendí muchísimo y disfruté', etiqueta: 'Positivo' },
+  { texto: 'Muy buena organización, la teoría se entiende y la práctica es útil', etiqueta: 'Positivo' },
+  { texto: 'Los proyectos finales fueron desafiantes pero muy formativos, geniales', etiqueta: 'Positivo' },
+  { texto: 'Excelente docente, hace fácil lo difícil con buenos ejemplos prácticos', etiqueta: 'Positivo' },
+  { texto: 'Salí con conocimientos sólidos, la metodología funciona muy bien', etiqueta: 'Positivo' },
+  { texto: 'Las prácticas de laboratorio fueron claras, ordenadas y muy útiles', etiqueta: 'Positivo' },
+  { texto: 'Gran materia, aprendí conceptos aplicados que ya estoy usando', etiqueta: 'Positivo' },
+  { texto: 'Contenido actualizado y práctico, uno de los mejores cursos que tomé', etiqueta: 'Positivo' },
+  { texto: 'Buenísimo, las actividades prácticas reforzaron cada tema visto', etiqueta: 'Positivo' },
+  { texto: 'Me sentí muy bien preparado, teoría clara y práctica excelente', etiqueta: 'Positivo' },
+  { texto: 'Las clases fueron amenas, aprendí muchísimo y todo fue muy útil', etiqueta: 'Positivo' },
+  { texto: 'Fantástica experiencia, los ejercicios aplicados fueron lo mejor', etiqueta: 'Positivo' },
+  { texto: 'El profesor domina el tema y lo transmite genial, muy recomendable', etiqueta: 'Positivo' },
+  { texto: 'Aprendí mucho más de lo que esperaba, práctica clara y bien guiada', etiqueta: 'Positivo' },
+  { texto: 'Muy satisfecho con la materia, buen balance y explicaciones claras', etiqueta: 'Positivo' },
+  { texto: 'Los talleres fueron excelentes y me ayudaron a aplicar la teoría', etiqueta: 'Positivo' },
+
+  // ---------------- NEUTROS ----------------
+  { texto: 'La materia estuvo normal, ni muy buena ni muy mala en general', etiqueta: 'Neutro' },
+  { texto: 'Algunas clases fueron útiles y otras no tanto, un punto intermedio', etiqueta: 'Neutro' },
+  { texto: 'La teoría estuvo bien pero la práctica podría mejorar un poco', etiqueta: 'Neutro' },
+  { texto: 'Regular, el contenido cumple aunque nada me sorprendió demasiado', etiqueta: 'Neutro' },
+  { texto: 'Ni bueno ni malo, la metodología es aceptable pero mejorable', etiqueta: 'Neutro' },
+  { texto: 'Depende del tema, algunos se entendieron mejor que otros', etiqueta: 'Neutro' },
+  { texto: 'El curso fue estándar, cumple lo básico sin destacar en nada', etiqueta: 'Neutro' },
+  { texto: 'La práctica estuvo bien pero la teoría se hizo algo larga', etiqueta: 'Neutro' },
+  { texto: 'Materia promedio, hay cosas buenas y cosas por mejorar', etiqueta: 'Neutro' },
+  { texto: 'Aceptable en general, ni me encantó ni me disgustó el curso', etiqueta: 'Neutro' },
+  { texto: 'Algunas prácticas útiles, otras un poco confusas, quedó regular', etiqueta: 'Neutro' },
+  { texto: 'El nivel fue normal, cumple pero no aporta mucho extra', etiqueta: 'Neutro' },
+  { texto: 'Ni fácil ni difícil, la materia se mantuvo en un punto medio', etiqueta: 'Neutro' },
+  { texto: 'Contenido correcto aunque la dinámica podría ser más interesante', etiqueta: 'Neutro' },
+  { texto: 'Estuvo pasable, algunas clases buenas y otras algo aburridas', etiqueta: 'Neutro' },
+  { texto: 'La organización fue regular, cumple lo esperado sin más', etiqueta: 'Neutro' },
+  { texto: 'Normal, aprendí algo pero esperaba un poco más de práctica', etiqueta: 'Neutro' },
+  { texto: 'Materia aceptable, con partes claras y partes mejorables', etiqueta: 'Neutro' },
+  { texto: 'El equilibrio teoría práctica fue más o menos, ni bien ni mal', etiqueta: 'Neutro' },
+  { texto: 'Cumplió lo justo, ni destacó ni fue mala, quedó en el medio', etiqueta: 'Neutro' },
+  { texto: 'Algunas explicaciones claras y otras no tanto, resultado regular', etiqueta: 'Neutro' },
+  { texto: 'El curso fue neutro para mí, sin grandes aciertos ni fallos', etiqueta: 'Neutro' },
+  { texto: 'Ni recomendaría ni desaconsejaría, es una materia del montón', etiqueta: 'Neutro' },
+  { texto: 'Práctica moderada y teoría moderada, todo bastante estándar', etiqueta: 'Neutro' },
+  { texto: 'Estuvo bien a medias, con aspectos rescatables y otros flojos', etiqueta: 'Neutro' },
+
+  // ---------------- NEGATIVOS ----------------
+  { texto: 'Las clases fueron muy confusas y no entendí casi nada de la materia', etiqueta: 'Negativo' },
+  { texto: 'Muy mala metodología, la práctica fue desordenada e inútil', etiqueta: 'Negativo' },
+  { texto: 'El profesor no explica bien y los ejercicios no ayudaron nada', etiqueta: 'Negativo' },
+  { texto: 'Perdí el tiempo, demasiada teoría aburrida y ninguna práctica útil', etiqueta: 'Negativo' },
+  { texto: 'Pésima organización, no aprendí lo que esperaba de este curso', etiqueta: 'Negativo' },
+  { texto: 'Las prácticas fueron un desastre, mal guiadas y poco claras', etiqueta: 'Negativo' },
+  { texto: 'No recomiendo esta materia, la enseñanza fue deficiente y confusa', etiqueta: 'Negativo' },
+  { texto: 'Todo muy desorganizado, el material era malo y difícil de seguir', etiqueta: 'Negativo' },
+  { texto: 'Clases aburridas y sin sentido práctico, salí sin aprender', etiqueta: 'Negativo' },
+  { texto: 'La teoría fue interminable y la práctica prácticamente inexistente', etiqueta: 'Negativo' },
+  { texto: 'Muy decepcionante, esperaba mucho más y aprendí muy poco', etiqueta: 'Negativo' },
+  { texto: 'El curso fue frustrante, explicaciones malas y ejercicios confusos', etiqueta: 'Negativo' },
+  { texto: 'No entendí la materia por culpa de la pésima metodología usada', etiqueta: 'Negativo' },
+  { texto: 'Horrible experiencia, laboratorios mal planificados y sin apoyo', etiqueta: 'Negativo' },
+  { texto: 'La peor materia del semestre, desorganizada y poco clara', etiqueta: 'Negativo' },
+  { texto: 'Demasiado confuso todo, no hubo práctica que sirviera de algo', etiqueta: 'Negativo' },
+  { texto: 'Mala enseñanza, el docente no resolvía dudas y todo era caótico', etiqueta: 'Negativo' },
+  { texto: 'Contenido pobre y desactualizado, no lo recomiendo para nada', etiqueta: 'Negativo' },
+  { texto: 'Fue una pérdida de tiempo, ni la teoría ni la práctica funcionaron', etiqueta: 'Negativo' },
+  { texto: 'Muy insatisfecho, las clases fueron flojas y desordenadas', etiqueta: 'Negativo' },
+  { texto: 'No aprendí nada útil, la metodología fue realmente deficiente', etiqueta: 'Negativo' },
+  { texto: 'Terrible, los ejercicios no tenían relación con la teoría vista', etiqueta: 'Negativo' },
+  { texto: 'Clases lentas y confusas, la práctica no aportó absolutamente nada', etiqueta: 'Negativo' },
+  { texto: 'Mala materia, mal explicada y con prácticas totalmente inútiles', etiqueta: 'Negativo' },
+  { texto: 'Decepcionante de principio a fin, no volvería a tomar este curso', etiqueta: 'Negativo' }
+];
