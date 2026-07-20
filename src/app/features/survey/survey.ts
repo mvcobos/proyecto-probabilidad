@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Header } from '../../components/header/header';
 import { Malla } from '../../core/services/malla';
 import { EncuestaService } from '../../core/services/encuesta.service';
-import { LocalStorageService } from '../../core/services/local-storage.service';
 
 @Component({
   selector: 'app-survey',
@@ -18,7 +17,6 @@ export class Survey {
   private route = inject(ActivatedRoute);
   private malla = inject(Malla);
   private encuestaService = inject(EncuestaService);
-  private localStorage = inject(LocalStorageService);
 
   semestreNumero = 0;
   materia = '';
@@ -100,14 +98,6 @@ export class Survey {
       return;
     }
 
-    const idEncuesta = `${this.semestreNumero}_${this.materia.toLowerCase()}`;
-
-    if (this.localStorage.yaRespondio(idEncuesta)) {
-      alert('Ya respondiste esta encuesta.');
-
-      return;
-    }
-
     try {
       await this.encuestaService.guardarEncuesta({
         semestre: this.semestreNumero,
@@ -132,8 +122,6 @@ export class Survey {
 
         cambioMetodologia: this.encuestaForm.value.cambioMetodologia!,
       });
-
-      this.localStorage.registrar(idEncuesta);
 
       alert('¡Muchas gracias! Tu encuesta fue registrada correctamente.');
 
