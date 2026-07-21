@@ -1,0 +1,1 @@
+import{f as i,h as n,j as c}from"./chunk-3AIAVG7S.js";import{R as o,W as t,_ as r,da as a}from"./chunk-LZU7XN3F.js";var s=class e{firestore=t(i);injector=t(a);obtenerEncuestas(){return r(this.injector,()=>n(c(this.firestore,"encuestas")))}static \u0275fac=function(u){return new(u||e)};static \u0275prov=o({token:e,factory:e.\u0275fac,providedIn:"root"})};export{s as a};
